@@ -8,6 +8,11 @@ class Room:
         self.items = items or []
         self.exits = exits or {}
 
+    def remove_item(self, item_name):
+        self.items = [items for item in self.items if item.name != item_name]
+
+    
+
 def setup_game():
     # Defines Rooms
     bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "office"})
