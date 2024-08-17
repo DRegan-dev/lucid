@@ -11,6 +11,9 @@ class Room:
     def remove_item(self, item_name):
         self.items = [items for item in self.items if item.name != item_name]
 
+    def add_item(self, item):
+        self.items.append(item)
+
     
 
 def setup_game():
