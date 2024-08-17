@@ -28,6 +28,11 @@ class Player:
         self.current_room = starting_room
         self.inventory = []
 
+    def move_to(self, room_name):
+        self.current_room = room_name
+
+    
+
     
 
 def setup_game():
