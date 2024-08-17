@@ -14,6 +14,9 @@ class Room:
     def add_item(self, item):
         self.items.append(item)
 
+    def get_exit(self, direction):
+        return self.exits.get(direction)
+
     
 
 def setup_game():
