@@ -17,6 +17,11 @@ class Room:
     def get_exit(self, direction):
         return self.exits.get(direction)
 
+class Item:
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+
     
 
 def setup_game():
