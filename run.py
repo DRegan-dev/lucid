@@ -1,6 +1,13 @@
 # Your code goes here.
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
+class Room:
+    def __init__(self, name, description, items=None, exits=None):
+        self.name = name
+        self.description = description
+        self.items = items or []
+        self.exits = exits or {}
+
 def setup_game():
     # Defines Rooms
     bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "office"})
