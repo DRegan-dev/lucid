@@ -31,6 +31,9 @@ class Player:
     def move_to(self, room_name):
         self.current_room = room_name
 
+    def add_to_inventory(self, item):
+        self.inventory.appenf(item)
+
     
 
     
