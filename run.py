@@ -34,6 +34,9 @@ class Player:
     def add_to_inventory(self, item):
         self.inventory.appenf(item)
 
+    def has_item(self, item_name):
+        return any(item.name == item_name for item in self.inventory)
+
     
 
     
