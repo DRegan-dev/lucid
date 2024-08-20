@@ -9,7 +9,7 @@ class Room:
         self.exits = exits or {}
 
     def remove_item(self, item_name):
-        self.items = [items for item in self.items if item.name != item_name]
+        self.items = [item for item in self.items if item.name != item_name]
 
     def add_item(self, item):
         self.items.append(item)
@@ -32,14 +32,40 @@ class Player:
         self.current_room = room_name
 
     def add_to_inventory(self, item):
-        self.inventory.appenf(item)
+        self.inventory.append(item)
 
     def has_item(self, item_name):
         return any(item.name == item_name for item in self.inventory)
 
     
 
-    
+ def command_handling(command, player, rooms):
+    words = command.split()  
+
+    if not words:
+        print("You must enter a command.")
+        return
+
+    action = words[0].lower()
+
+    if action in ["go", "move"]:
+        direction = words[1].lower() if len(words > 1 else None)
+        move_player(direction, player, rooms)
+
+    elif action == "look":
+        look_around(player, rooms)
+
+    elif action == "take":
+        item_name= " ".join(words[1:])
+        take_item(item_name, player, rooms)
+
+    elif action == "inventory":
+        show_inventory(player)
+
+    else:
+        print("Unknown Command.") 
+
+
 
 def setup_game():
     # Defines Rooms
@@ -55,7 +81,7 @@ def setup_game():
     office.add_item(Item("Phone", "A ringing phone, your kid is trying to call you"))
     office.add_item(Item("Origami Key", "A piece of paper folded in the shape of a key. Written on its surface it says: 'To move forward you must journey within"))
 
-    garden.add_item(Item("Knife", "A sharp steel knife, perfect for cutting a cake and other things..."))
+    backgarden.add_item(Item("Knife", "A sharp steel knife, perfect for cutting a cake and other things..."))
 
     hallway.add_item(Item("Your child's drawing", "A drawing your kid made for you, they are waving goodbye as you leave for work. You were too focused on getting to your job on time, you didn't see them wave"))
 
@@ -72,3 +98,21 @@ def setup_game():
 
     return rooms, player
 
+def main():
+    rooms, player = setup_game()
+
+    print("Welcome to Lucid")
+
+    while True:
+        current_room = rooms[player.current_room]
+        print(f"\n{current_room.description}")
+
+        command = input("> ")
+        if command.lower() in ["quit", "exit"]:
+            print("Thanks for playing!")
+            break
+
+        command_handling(command, player, rooms)
+
+if __name__ == "__main__":
+    main()
