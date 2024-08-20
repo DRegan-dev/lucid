@@ -65,7 +65,15 @@ class Player:
     else:
         print("Unknown Command.") 
 
+def move_player(direction, player, rooms):
+    current_room = rooms[player.current_room]
+    next_room = current_room.get_exit(direction)
 
+    if next_room:
+        player.move_to(next_room)
+        print(f"You move {direction}.")
+    else:
+        print("You can't go that way")
 
 def setup_game():
     # Defines Rooms
