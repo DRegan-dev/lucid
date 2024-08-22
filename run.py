@@ -38,8 +38,7 @@ class Player:
         return any(item.name == item_name for item in self.inventory)
 
     
-
- def command_handling(command, player, rooms):
+def command_handling(command, player, rooms):
     words = command.split()  
 
     if not words:
@@ -49,7 +48,7 @@ class Player:
     action = words[0].lower()
 
     if action in ["go", "move"]:
-        direction = words[1].lower() if len(words > 1 else None)
+        direction = words[1].lower() if len(words) > 1 else None
         move_player(direction, player, rooms)
 
     elif action == "look":
@@ -75,12 +74,20 @@ def move_player(direction, player, rooms):
     else:
         print("You can't go that way")
 
+def look_around(player, rooms):
+    current_room = rooms[player.current_room]
+    print(f"You are in (current_room.name).")
+    if current_room.items:
+        print("You see:")
+        for item in current_room.items:
+            print(f" - {item.name}: {item.description}")
+
 def setup_game():
     # Defines Rooms
     bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "office"})
     office = Room("Office", "A desk, a chair, a computer screen and paper suspended in mid air. Windows top to bottom", exits={"west": "Bedroom", "south": "Backgarden"})
     backgarden = Room("Garden", "Bright sunny garden, childs birthday party", exits={"north": "Office", "west": "hallway"})
-    hallway = Room("Long Hallway, with a door at either end, one take you back to the beginning. The other takes you to the end", exits={"west": "Bedroom", "east": "Hospital room"})
+    hallway = Room("Hallway", "Long Hallway with a door at either end, one take you back to the beginning. The other takes you to the end", exits={"west": "Bedroom", "east": "Hospital room"})
     
     # Add items to rooms
     bedroom.add_item(Item("Mirror", "A small rectangular mirror."))
@@ -100,7 +107,7 @@ def setup_game():
     rooms = {
         "Bedroom": bedroom,
         "Office": office,
-        "Garden": garden,
+        "Garden": backgarden,
         "Hallway": hallway
     }
 
