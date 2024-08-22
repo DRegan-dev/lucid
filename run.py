@@ -93,6 +93,14 @@ def take_item(item_name, player, rooms):
     else: 
         print(f"There is no such item here")
 
+def show_inventory(player):
+    if player.inventory:
+        print(f"You are carrying:")
+        for item in player.inventory:
+            print(f" - {item.name}: {item.description}")
+    else:
+        print("You are not carrying anything")
+
 def setup_game():
     # Defines Rooms
     bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "office"})
