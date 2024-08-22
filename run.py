@@ -82,6 +82,17 @@ def look_around(player, rooms):
         for item in current_room.items:
             print(f" - {item.name}: {item.description}")
 
+def take_item(item_name, player, rooms):
+    current_room = rooms[player.current_room]
+    item = next((item for item in current_room.items if item.name.lower() == item_name.lower()), None)
+
+    if item:
+        player.add_to_inventory(item)
+        current_room.remove_item(item_name)
+        print(f"You take the {item_name}")
+    else: 
+        print(f"There is no such item here")
+
 def setup_game():
     # Defines Rooms
     bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "office"})
