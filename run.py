@@ -147,7 +147,41 @@ def main():
         current_room = rooms[player.current_room]
         print(f"\n{current_room.description}")
 
-        command = input("> ")
+        if player.current_room == "Bedroom":
+            print("To the north, you see a large balance scale")
+            print("To the east there is a desk with two picture frames, each holding a cherished memory.")
+            print("To the South, the door leads out of the room")
+        elif player.current_room == "Office":
+            print("The office is chais in suspended animation. Papers are thrown everywhere trapped in mid flight. Ouside the window a swirling hurricane carries faint voices on its forceful wind.")
+            print("To the east, there is a desk with a computer and a ringing phone")
+            print("To the west, a door will take you elsewhere")
+        elif player.current_room == "Garden":
+            print("The heat from the sun finds your skin, in the distance you can hear children singing happy birthday to your kid")
+            print("To the north, your kid sits behind a group of parents and their children singing Happy Birthday.")
+            print("To the east a vacant picnic table")
+        elif player.current_room == "Hallway":
+            print("The hallway seems to stretch infinitely, the doors on either end promising both hope and despair")
+            print("You look down at your feet as you enter the hallway. A picture that your child has drawn.")
+
+        if current_room.name != "Bedroom":
+            exits = current_room.exits
+            items = current_room.items
+
+            if exits:
+                print("\nFrom here, you can go:")
+                for direction, room_name in exits.items():
+                    print(f"- {direction.title()} to the {room_name}")
+            else:
+                print("\nThere are no obvious exits from this room.")
+
+            if items:
+                print(f"\nIn this room, you see:")
+                for item in items:
+                    print(f"- {item.name}: {item.description}")
+            else:
+                print("\nThere are no items in this room.")
+
+        command = input("> ").strip().lower()
         if command.lower() in ["quit", "exit"]:
             print("Thanks for playing!")
             break
