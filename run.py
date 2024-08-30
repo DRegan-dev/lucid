@@ -139,6 +139,15 @@ def command_handling(command, player, rooms):
             print(f"You take the {item.name}.")
         else:
             print("There is no {item_name} here.")
+    elif action == "inventory":
+        if player.inventory:
+            print("You are carrying: ")
+            for item in player.inventory:
+                print(f"- {item.name}: {item.description}")
+        else:
+            print("Your inventory is empty")
+    else:
+        print("Unknown Command.")
 
     if not words:
         print("You must enter a command.")
