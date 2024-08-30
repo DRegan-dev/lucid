@@ -39,7 +39,52 @@ class Player:
 
     
 def command_handling(command, player, rooms):
-    words = command.split()  
+    words = command.split()
+    action = words[0] if words else ""
+
+    current_room = rooms[player.current_room]
+    if player.current_room == "Bedroom":
+        if action in ["go", "move"]:
+            if len(words) < 2:
+                print("You need to specify a direction.")
+                return 
+            direction = words[1]
+
+            if direction == "north":
+                print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems symbolic. Weighing decisions you have made and will make...")
+            elif direction == "south":
+                print("You move toward the desk with a mirror and a picture frame on top of it")
+            elif direction == "east":
+            next_room = current_room.get_exit(direction)
+            if next_room and next_room in rooms:
+                player.move_to(next_room)
+                print(f"You move {direction}.")
+            else:
+                print("You can't go that way")
+        elif action == "look":
+            print(f"You are in {rooms[player.current_room].description}") 
+        elif action == "take":
+            item_name = " ".join(words[1:])
+            current_room = rooms[player.current_room]
+            item = next((item for item in current_room.items if item.name.lower() == item_name.lower()), None)
+            if item:
+                player.add_to_inventory(item)
+                current_room.remove_item(item_name)
+                print(f"You take the {item_name}.")
+            else: 
+                print("Your inventory is empty")
+        else:
+            print("Unknown command.")
+
+    elif player.current_room == "Office":
+        if action in ["go", "move"]:
+            if len(words) < 2:
+                print("You need to specify a direction.")
+                return
+            direction = words[1]
+
+            if direction == east:
+                print("You move towards the desk")
 
     if not words:
         print("You must enter a command.")
@@ -103,9 +148,9 @@ def show_inventory(player):
 
 def setup_game():
     # Defines Rooms
-    bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "office"})
-    office = Room("Office", "A desk, a chair, a computer screen and paper suspended in mid air. Windows top to bottom", exits={"west": "Bedroom", "south": "Backgarden"})
-    backgarden = Room("Garden", "Bright sunny garden, childs birthday party", exits={"north": "Office", "west": "hallway"})
+    bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={"east": "Office"})
+    office = Room("Office", "A desk, a chair, a computer screen and paper suspended in mid air. Windows top to bottom", exits={"west": "Bedroom", "south": "Garden"})
+    backgarden = Room("Garden", "Bright sunny garden, childs birthday party", exits={"north": "Office", "west": "Hallway"})
     hallway = Room("Hallway", "Long Hallway with a door at either end, one take you back to the beginning. The other takes you to the end", exits={"west": "Bedroom", "east": "Hospital room"})
     
     # Add items to rooms
@@ -149,16 +194,16 @@ def main():
 
         if player.current_room == "Bedroom":
             print("To the north, you see a large balance scale")
-            print("To the east there is a desk with two picture frames, each holding a cherished memory.")
-            print("To the South, the door leads out of the room")
+            print("To the south, there is a desk with two picture frames, each holding a cherished memory.")
+            print("To the east, the door leads out of the room")
         elif player.current_room == "Office":
-            print("The office is chais in suspended animation. Papers are thrown everywhere trapped in mid flight. Ouside the window a swirling hurricane carries faint voices on its forceful wind.")
+            print("The office is chaos in suspended animation. Papers are thrown everywhere trapped in mid flight. Ouside the window a swirling hurricane carries faint voices on its forceful wind.")
             print("To the east, there is a desk with a computer and a ringing phone")
-            print("To the west, a door will take you elsewhere")
+            print("To the west, a door will take you where you need to go")
         elif player.current_room == "Garden":
             print("The heat from the sun finds your skin, in the distance you can hear children singing happy birthday to your kid")
             print("To the north, your kid sits behind a group of parents and their children singing Happy Birthday.")
-            print("To the east a vacant picnic table")
+            print("To the east, a vacant picnic table")
         elif player.current_room == "Hallway":
             print("The hallway seems to stretch infinitely, the doors on either end promising both hope and despair")
             print("You look down at your feet as you enter the hallway. A picture that your child has drawn.")
