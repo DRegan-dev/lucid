@@ -83,8 +83,17 @@ def command_handling(command, player, rooms):
                 return
             direction = words[1]
 
-            if direction == east:
-                print("You move towards the desk")
+            if direction == "east":
+                print("You move towards the desk, where the computer screen flickers and the phone rings loudly")
+            elif direction == "west":
+                next_room = current_room.get_exit(direction)
+                if next_room and next_room in rooms:
+                    player.move_to(next_room)
+                    print(f"You move{direction}.")
+                else:
+                    print("You can;t go that way")
+            else:
+                print("There's nothing in that direction of interest")
 
     if not words:
         print("You must enter a command.")
