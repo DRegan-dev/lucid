@@ -118,7 +118,16 @@ def command_handling(command, player, rooms):
 
 
             if direction == "down":
-                print("You look down at your feet")
+                print("You look down at your feet and see a drawing your child has done")
+            elif direction == "east":
+                next_room = current_room.get_exit(direction)
+                if next_room and next_room in rooms:
+                    player.move_to(next_room)
+                    print(f"You move {direction}.")
+                else:
+                    print("You can;t go that way")
+            else:
+                print("Theres nothing of interest in that direction")
 
     if not words:
         print("You must enter a command.")
