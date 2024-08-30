@@ -128,6 +128,17 @@ def command_handling(command, player, rooms):
                     print("You can;t go that way")
             else:
                 print("Theres nothing of interest in that direction")
+    elif action == "look":
+        print(f"You are in {current_room.description}.")
+    elif action == "take":
+        item_name = " ".join(words[1:])
+        item = next((item for item in current_room.items if item.name.lower() == item_name.lower()), None)
+        if item:
+            player.add_to_inventory(item)
+            current_room.remove_item(item_name)
+            print(f"You take the {item.name}.")
+        else:
+            print("There is no {item_name} here.")
 
     if not words:
         print("You must enter a command.")
