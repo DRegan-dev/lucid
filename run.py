@@ -95,6 +95,31 @@ def command_handling(command, player, rooms):
             else:
                 print("There's nothing in that direction of interest")
 
+    elif player.current_room == "Garden":
+        if action in ["go", "move"]:
+            if len(words) < 2:
+                print("You need to specify a direction.")
+                return
+            direction = words[1]
+
+            if direction == "north":
+                print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
+            elif direction == "east":
+                print("You appraoch a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife.")
+            else:
+                print("Theres nothing in that direction of interest")
+
+    elif player.current_room == "Hallway":
+        if action in ["go", "move"]:
+            if len(words) < 2:
+                print("You need to specify a direction.")
+                return
+            direction = words[1]
+
+
+            if direction == "down":
+                print("You look down at your feet")
+
     if not words:
         print("You must enter a command.")
         return
