@@ -40,96 +40,67 @@ class Player:
     
 def command_handling(command, player, rooms):
     words = command.split()
-    action = words[0] if words else ""
-
+    if not words:
+        print("You must enter a command.")
+        return
+    action = words[0].lower()
+    direction = words[1].lower() if len(words) > 1 else None
     current_room = rooms[player.current_room]
-    if player.current_room == "Bedroom":
-        if action in ["go", "move"]:
-            if len(words) < 2:
-                print("You need to specify a direction.")
-                return 
-            direction = words[1]
 
+    if action in ["go", "move"]:
+        if not direction:
+            print("You need to specify a direction")
+            return
+    
+        if player.current_room == "Bedroom":
             if direction == "north":
                 print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems symbolic. Weighing decisions you have made and will make...")
+                return
             elif direction == "south":
                 print("You move toward the desk with a mirror and a picture frame on top of it")
-            elif direction == "east":
-            next_room = current_room.get_exit(direction)
-            if next_room and next_room in rooms:
-                player.move_to(next_room)
-                print(f"You move {direction}.")
-            else:
-                print("You can't go that way")
-        elif action == "look":
-            print(f"You are in {rooms[player.current_room].description}") 
-        elif action == "take":
-            item_name = " ".join(words[1:])
-            current_room = rooms[player.current_room]
-            item = next((item for item in current_room.items if item.name.lower() == item_name.lower()), None)
-            if item:
-                player.add_to_inventory(item)
-                current_room.remove_item(item_name)
-                print(f"You take the {item_name}.")
-            else: 
-                print("Your inventory is empty")
-        else:
-            print("Unknown command.")
-
-    elif player.current_room == "Office":
-        if action in ["go", "move"]:
-            if len(words) < 2:
-                print("You need to specify a direction.")
                 return
-            direction = words[1]
+            elif direction == "east":
+                next_room = current_room.get_exit(direction)
+            else:
+                next_room = None
 
+        elif player.current_room == "Office":
             if direction == "east":
                 print("You move towards the desk, where the computer screen flickers and the phone rings loudly")
+                return
             elif direction == "west":
                 next_room = current_room.get_exit(direction)
-                if next_room and next_room in rooms:
-                    player.move_to(next_room)
-                    print(f"You move{direction}.")
+            else:
+                next_room = None
+            
+
+        elif player.current_room == "Garden":
+                if direction == "north":
+                    print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
+                elif direction == "east":
+                    print("You appraoch a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife.")
                 else:
-                    print("You can;t go that way")
-            else:
-                print("There's nothing in that direction of interest")
+                    next_room = None
 
-    elif player.current_room == "Garden":
-        if action in ["go", "move"]:
-            if len(words) < 2:
-                print("You need to specify a direction.")
-                return
-            direction = words[1]
-
-            if direction == "north":
-                print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
-            elif direction == "east":
-                print("You appraoch a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife.")
-            else:
-                print("Theres nothing in that direction of interest")
-
-    elif player.current_room == "Hallway":
-        if action in ["go", "move"]:
-            if len(words) < 2:
-                print("You need to specify a direction.")
-                return
-            direction = words[1]
-
-
-            if direction == "down":
-                print("You look down at your feet and see a drawing your child has done")
-            elif direction == "east":
-                next_room = current_room.get_exit(direction)
-                if next_room and next_room in rooms:
-                    player.move_to(next_room)
-                    print(f"You move {direction}.")
+        elif player.current_room == "Hallway":
+                if direction == "down":
+                    print("You look down at your feet and see a drawing your child has done")
+                    return
+                elif direction == "east":
+                    next_room = current_room.get_exit(direction)
                 else:
-                    print("You can;t go that way")
-            else:
-                print("Theres nothing of interest in that direction")
+                    next_room = None
+
+        if next_room:
+            player.move_to(next_room)
+            print(f"You move {direction}")
+        else:
+            print("You can;t go that way")
+
     elif action == "look":
         print(f"You are in {current_room.description}.")
+        look_around(player, rooms)
+    
     elif action == "take":
         item_name = " ".join(words[1:])
         item = next((item for item in current_room.items if item.name.lower() == item_name.lower()), None)
@@ -139,38 +110,12 @@ def command_handling(command, player, rooms):
             print(f"You take the {item.name}.")
         else:
             print("There is no {item_name} here.")
-    elif action == "inventory":
-        if player.inventory:
-            print("You are carrying: ")
-            for item in player.inventory:
-                print(f"- {item.name}: {item.description}")
-        else:
-            print("Your inventory is empty")
-    else:
-        print("Unknown Command.")
-
-    if not words:
-        print("You must enter a command.")
-        return
-
-    action = words[0].lower()
-
-    if action in ["go", "move"]:
-        direction = words[1].lower() if len(words) > 1 else None
-        move_player(direction, player, rooms)
-
-    elif action == "look":
-        look_around(player, rooms)
-
-    elif action == "take":
-        item_name= " ".join(words[1:])
-        take_item(item_name, player, rooms)
 
     elif action == "inventory":
         show_inventory(player)
 
     else:
-        print("Unknown Command.") 
+        print("Unknown Command.")
 
 def move_player(direction, player, rooms):
     current_room = rooms[player.current_room]
