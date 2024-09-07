@@ -128,8 +128,36 @@ def handle_garden(player, rooms):
                 print(f"You leave the {item.name} on the picnic table.")
     else:
         print("Invalid direction. Try again.")
-    
+
+def handle_hallway(player, rooms):
+    direction = input("Which direction would you like to go?").strip().lower()
+
+    if direction == "down":
+        print("You look down at your feet and see a drawing you child has done.")
+        for item in rooms[player.current_room].items:
+            item_action = input(f"Type 'take' to pick up the {item.name}").strip().lower()
+            if item_action == "take":
+                player.add_to_inventory(item)
+                rooms[player.current_room].remove_item(item.name)
+                print(f"You take the {item.name}.")
+                print(f"{item.description}")
+                print("You must now make the ultimate decision")
+    elif direction in ["east", "west"]:
+        next_room = rooms[player.current_room].get_exit(direction)
+        if next_room:
+            player.move_to(next_room)
+            print(f"You move {direction.}")
+            if direction == "west":
+                print(end of game sequence())
+            elif direction == "east":
+                restart_game()
+                return
+    else:
+        print("Invalid direction. Try again.")
+
 def command_handling(command, player, rooms):
+
+    current
     words = command.split()
     if not words:
         print("You must enter a command.")
