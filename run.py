@@ -51,6 +51,31 @@ class Player:
 def handle_bedroom(player, rooms):
     direction = input("Which direction would you like to go? ").strip().lower()
 
+    if direction == "north":
+        print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems ymbolic. Weighing decisions you have made and will make...")
+        
+        if not player.inventory:
+            print("you have nothing in your inventory to balance it out")
+        else:
+            player.show_inventory()
+    elif direction == 'south':
+        print("You move toward the desk with a mirror and a picture frame on top of it")
+        for item in rooms[player.current_room].items:
+            item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
+            if item_action == "take":
+                player.add_to_inventory(item)
+                rooms[player.current_room].remove_item(item.name)
+                print(f"You take the {item.name}.")
+            elif item_action == "leave":
+                print(f"You leave the {item.name} on the desk.")
+    elif direction == 'east':
+        next_room = rooms[player.current_room].get_exit(direction)
+        if next_room:
+            player.move(next_room)
+            print("You move east")
+    else:
+        print("Invalid direction. Try Again")
+
     
 def command_handling(command, player, rooms):
     words = command.split()
