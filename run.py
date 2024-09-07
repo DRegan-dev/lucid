@@ -100,6 +100,34 @@ def handle_office(player, rooms):
     else:
         print("Invalid direction. Try Again.")
 
+
+def handle_garden(player, rooms):
+    direction = input("Which direction would you like to go? ").strip().lower()
+
+    if direction == "north":
+        if player.has_item("knife"):
+            next_room = rooms[player.current_room].get_exit(direction)
+            if next_room:
+                print("You use the knife to cut through the 2d picture and exit the party")
+                player.move_to(next_room)
+            else:
+                print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday. You cannot reach them. Maybe its too late...")
+    elif direction == "east":
+        print("You approach a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife")
+        for item in rooms[player.current_room].items:
+            item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it")
+            if item_action == "take":
+                player.add_to_inventory(item)
+                rooms[player.current_room].remove_item(item.name)
+                print(f"You take the {item.name}.")
+                if item.name.lower() == "knife":
+                    rooms[player.current_room].exits["north"] = "Hallway"
+                    print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
+                    print("Type 'go north' to use the knife to cut through the picture and exit the party.")
+            elif item_action == "leave":
+                print(f"You leave the {item.name} on the picnic table.")
+    else:
+        print("Invalid direction. Try again.")
     
 def command_handling(command, player, rooms):
     words = command.split()
