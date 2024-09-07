@@ -39,6 +39,17 @@ class Player:
 
     def has_item(self, item_name):
         return any(item.name == item_name for item in self.inventory)
+    
+    def show_inventory(self):
+        if self.inventory:
+            print(f"You are carrying: ")
+            for i, item in enumerate(self.inventory, 1):
+                print(f"{i}. {item.name}: {item.description}")
+        else:
+            print("You are not carrying anything")
+
+def handle_bedroom(player, rooms):
+    direction = input("Which direction would you like to go? ").strip().lower()
 
     
 def command_handling(command, player, rooms):
@@ -125,6 +136,9 @@ def command_handling(command, player, rooms):
                         next_room = current_room.get_exit(direction)
                         if next_room:
                             print("You use the knife to cut through the 2d picture and exit the party")
+                            player.move_to(next_room)
+                            print("You move north")
+                            return
                     else:
                         print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
                 elif direction == "east":
@@ -154,35 +168,35 @@ def command_handling(command, player, rooms):
                     return
             
         elif player.current_room == "Hallway":
-                if direction == "down":
-                    print("You look down at your feet and see a drawing your child has done")
+                
+                print("You look down at your feet and see a drawing your child has done")
 
-                    for item in current_room.items:
-                        while True:
-                            print(f"\nYou see a {item.name}: {item.description}")
-                            item_action = input(f"Type 'take' to pick up the {item.name}").strip().lower()
+                for item in current_room.items:
+                    while True:
+                        print(f"\nYou see a {item.name}: {item.description}")
+                        item_action = input(f"Type 'take' to pick up the {item.name}").strip().lower()
 
-                            if item_action == "take":
-                                player.add_to_inventory(item)
-                                current_room.remove_item(item.name)
-                                print(f"You take the {item.name}.")
-                                print("You must now make a decision: ")
-                                print("Type 'go west' to return to the beginning")
-                                print("Type 'go east to go and be with your family")
+                        if item_action == "take":
+                            player.add_to_inventory(item)
+                            current_room.remove_item(item.name)
+                            print(f"You take the {item.name}.")
+                            print("You must now make a decision: ")
+                            print("Type 'go west' to return to the beginning")
+                            print("Type 'go east to go and be with your family")
 
                             
-                            else:
-                                print("Invalid command. Please type 'take'")
+                        else:
+                            print("Invalid command. Please type 'take'")
 
-                    return
+                return
                 
-                elif direction == "east":
-                    next_room = current_room.get_exit(direction)
-                elif direction == "west":
-                    next_room = current_room.get_exit(direction)
-                else:
-                    next_room = None
-                    print("There is no way forward in that direction")
+        if direction == "east":
+            next_room = current_room.get_exit(direction)
+        elif direction == "west":
+            next_room = current_room.get_exit(direction)
+        else:
+            next_room = None
+            print("There is no way forward in that direction")
 
         if next_room:
             player.move_to(next_room)
