@@ -49,6 +49,7 @@ def command_handling(command, player, rooms):
     action = words[0].lower()
     direction = words[1].lower() if len(words) > 1 else None
     current_room = rooms[player.current_room]
+    next_room = None
 
     if action in ["go", "move"]:
         if not direction:
@@ -120,20 +121,68 @@ def command_handling(command, player, rooms):
 
         elif player.current_room == "Garden":
                 if direction == "north":
-                    print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
+                    if "knife" in [item.name.lower() for item in player.inventory]:
+                        next_room = current_room.get_exit(direction)
+                        if next_room:
+                            print("You use the knife to cut through the 2d picture and exit the party")
+                    else:
+                        print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
                 elif direction == "east":
                     print("You appraoch a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife.")
-                else:
-                    next_room = None
 
+                    for item in current_room.items:
+                        while True:
+                            print(f"\nYou see a {item.name}: {item.description}")
+                            item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
+
+                            if item_action == "take":
+                                player.add_to_inventory(item)
+                                current_room.remove_item(item.name)
+                                print(f"You take the {item.name}.")
+
+                                if item.name.lower() == "knife":
+                                    current_room.exits["north"] = "Hallway"
+                                    print("As you pick up the knife the singing stops. You turn to find out why and see the the party scene you had just been immersed in has turned to a 2d picture on paper")
+                                    print("Type 'go north' to use the knife to cut through the picture and exit the party")
+                                break
+                            elif item_action == 'leave':
+                                print(f"you leave the {item.name} on the desk.")
+                                break
+                            else:
+                                print("Invalid command. Please type 'take' or 'leave'.")
+
+                    return
+            
         elif player.current_room == "Hallway":
                 if direction == "down":
                     print("You look down at your feet and see a drawing your child has done")
+
+                    for item in current_room.items:
+                        while True:
+                            print(f"\nYou see a {item.name}: {item.description}")
+                            item_action = input(f"Type 'take' to pick up the {item.name}").strip().lower()
+
+                            if item_action == "take":
+                                player.add_to_inventory(item)
+                                current_room.remove_item(item.name)
+                                print(f"You take the {item.name}.")
+                                print("You must now make a decision: ")
+                                print("Type 'go west' to return to the beginning")
+                                print("Type 'go east to go and be with your family")
+
+                            
+                            else:
+                                print("Invalid command. Please type 'take'")
+
                     return
+                
                 elif direction == "east":
+                    next_room = current_room.get_exit(direction)
+                elif direction == "west":
                     next_room = current_room.get_exit(direction)
                 else:
                     next_room = None
+                    print("There is no way forward in that direction")
 
         if next_room:
             player.move_to(next_room)
@@ -208,7 +257,7 @@ def show_inventory(player, rooms):
                 else:
                     print("Invalid input")
             else:
-                print("You chose not to use any item.")
+                print("You choose not to use any item.")
     else:
         print("You are not carrying anything")
 
@@ -236,7 +285,7 @@ def setup_game():
     # Defines Rooms
     bedroom = Room("Bedroom", "A dimly lit room with shadows in every corner", exits={})
     office = Room("Office", "A desk, a chair, a computer screen and paper suspended in mid air. Windows top to bottom", exits={})
-    backgarden = Room("Garden", "Bright sunny garden, childs birthday party", exits={"north": "Office", "west": "Hallway"})
+    backgarden = Room("Garden", "Bright sunny garden, childs birthday party", exits={})
     hallway = Room("Hallway", "Long Hallway with a door at either end, one take you back to the beginning. The other takes you to the end", exits={"west": "Bedroom", "east": "Hospital room"})
     
     # Add items to rooms
@@ -248,7 +297,7 @@ def setup_game():
 
     backgarden.add_item(Item("Knife", "A sharp steel knife, perfect for cutting a cake and other things..."))
 
-    hallway.add_item(Item("Your child's drawing", "A drawing your kid made for you, they are waving goodbye as you leave for work. You were too focused on getting to your job on time, you didn't see them wave"))
+    hallway.add_item(Item("Drawing", "A drawing your kid made for you, they are waving goodbye as you leave for work. You were too focused on getting to your job on time, you didn't see them wave"))
 
     # Defines Player
     player = Player("Hero", "Bedroom") 
