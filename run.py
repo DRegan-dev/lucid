@@ -76,6 +76,30 @@ def handle_bedroom(player, rooms):
     else:
         print("Invalid direction. Try Again")
 
+def handle_office(player, rooms):
+    direction = input("Which direction would you like to go? ").strip().lower()
+
+    if direction == "east":
+        print("You move towards the desk, where the computer flickers and the phone rings loudly")
+        for item in rooms[player.current_room].items:
+            item_action = input(f"Type'take' to pick up {item.name}, or 'leave' to leave it")
+            if item_action == "take":
+                player.add_to_inventory(item)
+                rooms[player.current_room].remove_item(item.name)
+                print(f"You take the {item.name}.")
+                if item.name.lower() == "origami key":
+                    rooms[player.current_room].exits["west"] = "Garden"
+                    print("Type 'go west' to use the key to unlock the exit and move on")
+            elif item_action == "leave":
+                print(f"You leave the {item.name} on the desk.")
+    elif direction == "west":
+        next_room = rooms[player.current_room].get_exit(direction)
+        if next_room:
+            player.move_to(next_room)
+            print("You move west.")
+    else:
+        print("Invalid direction. Try Again.")
+
     
 def command_handling(command, player, rooms):
     words = command.split()
