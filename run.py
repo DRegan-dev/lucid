@@ -18,6 +18,8 @@ class Room:
 
     def get_exit(self, direction):
         return self.exits.get(direction)
+
+
 # Class representing an item in the game
 class Item:
     def __init__(self, name, description):
@@ -48,36 +50,69 @@ class Player:
         else:
             print("You are not carrying anything")
 
-def handle_bedroom(player, rooms):
-    direction = input("Which direction would you like to go? ").strip().lower()
+def show_available_directions(player, rooms):
+    current_room = rooms[player.current_room]
+    exits = current_room.exits
 
-    if direction == "north":
-        print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems ymbolic. Weighing decisions you have made and will make...")
-        
-        if not player.inventory:
-            print("you have nothing in your inventory to balance it out")
-        else:
-            player.show_inventory()
-    elif direction == 'south':
-        print("You move toward the desk with a mirror and a picture frame on top of it")
-        for item in rooms[player.current_room].items:
+    if exits:
+        print("\nYou can go: ")
+        for direction, room_name in exits.items():
+            print(f"- {direction.capitalize()}: {room_name}")
+    else:
+        print("\nThere are no obvious exits from this room.")
+
+def handle_item_interaction(player, room):
+    for item in room.items:
+        while True:
             item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
             if item_action == "take":
                 player.add_to_inventory(item)
-                rooms[player.current_room].remove_item(item.name)
+                room.remove_item(item.name)
                 print(f"You take the {item.name}.")
+                break
             elif item_action == "leave":
-                print(f"You leave the {item.name} on the desk.")
+                print(f"You leave the {item.name}.")
+
+def handle_bedroom(player, rooms, direction):
+
+    if direction == "north":
+        print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems symbolic. Weighing decisions you have made and will make...")
+        
+        while True:
+            if not player.inventory:
+                print("you have nothing in your inventory to balance it out")
+                break
+        
+            player.show_inventory()
+            item_choice = input("Enter the number of the item you want to use: ").strip()
+
+            if item_choice.isdigit():
+                item_index = int(item_choice) - 1
+                if 0 <= item_index < len(player.inventory):
+                    item_used = use_item_from_inventory(player.inventory[item_index], player, rooms)
+                    if item_used:
+                        break
+                else:
+                    print("Invalid Choice")
+            else:
+                print("Invalid input.")
+
+    elif direction == 'south':
+        print("You move toward the desk with a mirror and a picture frame on top of it")
+        handle_item_interaction(player, rooms[player.current_room])
     elif direction == 'east':
         next_room = rooms[player.current_room].get_exit(direction)
         if next_room:
-            player.move(next_room)
+            player.move_to(next_room)
             print("You move east")
-    else:
-        print("Invalid direction. Try Again")
+            return
+        else:
+            print("The door to the east is locked You need to find a way to unlock it.")
+            return
 
-def handle_office(player, rooms):
-    direction = input("Which direction would you like to go? ").strip().lower()
+    show_available_directions(player, rooms)
+
+def handle_office(player, rooms, direction):
 
     if direction == "east":
         print("You move towards the desk, where the computer flickers and the phone rings loudly")
@@ -100,9 +135,9 @@ def handle_office(player, rooms):
     else:
         print("Invalid direction. Try Again.")
 
+    show_available_directions(player, rooms)
 
-def handle_garden(player, rooms):
-    direction = input("Which direction would you like to go? ").strip().lower()
+def handle_garden(player, rooms, direction):
 
     if direction == "north":
         if player.has_item("knife"):
@@ -128,9 +163,12 @@ def handle_garden(player, rooms):
                 print(f"You leave the {item.name} on the picnic table.")
     else:
         print("Invalid direction. Try again.")
+    
 
-def handle_hallway(player, rooms):
-    direction = input("Which direction would you like to go?").strip().lower()
+    show_available_directions(player, rooms)
+
+def handle_hallway(player, rooms, direction):
+    
 
     if direction == "down":
         print("You look down at your feet and see a drawing you child has done.")
@@ -146,189 +184,46 @@ def handle_hallway(player, rooms):
         next_room = rooms[player.current_room].get_exit(direction)
         if next_room:
             player.move_to(next_room)
-            print(f"You move {direction.}")
+            print(f"You move {direction}")
             if direction == "west":
-                print(end of game sequence())
+                print(end_of_game_sequence())
             elif direction == "east":
                 restart_game()
                 return
     else:
         print("Invalid direction. Try again.")
 
+
+    show_available_directions(player, rooms)
+
 def command_handling(command, player, rooms):
 
-    current
     words = command.split()
     if not words:
         print("You must enter a command.")
         return
+
     action = words[0].lower()
     direction = words[1].lower() if len(words) > 1 else None
-    current_room = rooms[player.current_room]
-    next_room = None
 
     if action in ["go", "move"]:
         if not direction:
             print("You need to specify a direction")
             return
-    
-        if player.current_room == "Bedroom":
-            if direction == "north":
-                print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems symbolic. Weighing decisions you have made and will make...")
 
-                if not player.inventory:
-                    print("You have nothing in your inventory to balance it out. Search the room some more to find that which will set you free")
-                    return
-                
-                print("Type 'inventory' to view your items and decide what to use.")
-                return
-            elif direction == "south":
-                print("You move toward the desk with a mirror and a picture frame on top of it")
-                for item in current_room.items:
-                    while True:
-                        print(f"\nYou see a {item.name}: {item.description}")
-                        item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
+    current_room = rooms[player.current_room]
 
-                        if item_action == "take":
-                            player.add_to_inventory(item)
-                            current_room.remove_item(item.name)
-                            print(f"You take the {item.name}.")
-                            break
-                        elif item_action == 'leave':
-                            print(f"You leave the {item.name} on the desk.")
-                            break
-                        else:
-                            print("Invalid command. Please type 'take' or 'leave'.")
-                return
-            elif direction == "east":
-                next_room = current_room.get_exit(direction)
-            else:
-                next_room = None
-
-        elif player.current_room == "Office":
-            if direction == "east":
-                print("You move towards the desk, where the computer screen flickers and the phone rings loudly")
-                for item in current_room.items:
-                    while True:
-                        print(f"\nYou see a {item.name}: {item.description}")
-                        item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
-
-                        if item_action == "take":
-                            player.add_to_inventory(item)
-                            current_room.remove_item(item.name)
-                            print(f"You take the {item.name}.")
-
-                            if item.name.lower() == "origami key":
-                                current_room.exits["west"] = "Garden"
-                                print("Type 'go west' to use the key to unlock the exit and move on")
-                            break
-                        elif item_action == 'leave':
-                            print(f"you leave the {item.name} on the desk.")
-                            break
-                        else:
-                            print("Invalid command. Please type 'take' or 'leave'.")
-
-                return
-            elif direction == "west":
-                next_room = current_room.get_exit(direction)
-            else:
-                next_room = None
-            
-
-        elif player.current_room == "Garden":
-                if direction == "north":
-                    if "knife" in [item.name.lower() for item in player.inventory]:
-                        next_room = current_room.get_exit(direction)
-                        if next_room:
-                            print("You use the knife to cut through the 2d picture and exit the party")
-                            player.move_to(next_room)
-                            print("You move north")
-                            return
-                    else:
-                        print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday.")
-                elif direction == "east":
-                    print("You appraoch a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife.")
-
-                    for item in current_room.items:
-                        while True:
-                            print(f"\nYou see a {item.name}: {item.description}")
-                            item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
-
-                            if item_action == "take":
-                                player.add_to_inventory(item)
-                                current_room.remove_item(item.name)
-                                print(f"You take the {item.name}.")
-
-                                if item.name.lower() == "knife":
-                                    current_room.exits["north"] = "Hallway"
-                                    print("As you pick up the knife the singing stops. You turn to find out why and see the the party scene you had just been immersed in has turned to a 2d picture on paper")
-                                    print("Type 'go north' to use the knife to cut through the picture and exit the party")
-                                break
-                            elif item_action == 'leave':
-                                print(f"you leave the {item.name} on the desk.")
-                                break
-                            else:
-                                print("Invalid command. Please type 'take' or 'leave'.")
-
-                    return
-            
-        elif player.current_room == "Hallway":
-                
-                print("You look down at your feet and see a drawing your child has done")
-
-                for item in current_room.items:
-                    while True:
-                        print(f"\nYou see a {item.name}: {item.description}")
-                        item_action = input(f"Type 'take' to pick up the {item.name}").strip().lower()
-
-                        if item_action == "take":
-                            player.add_to_inventory(item)
-                            current_room.remove_item(item.name)
-                            print(f"You take the {item.name}.")
-                            print("You must now make a decision: ")
-                            print("Type 'go west' to return to the beginning")
-                            print("Type 'go east to go and be with your family")
-
-                            
-                        else:
-                            print("Invalid command. Please type 'take'")
-
-                return
-                
-        if direction == "east":
-            next_room = current_room.get_exit(direction)
-        elif direction == "west":
-            next_room = current_room.get_exit(direction)
-        else:
-            next_room = None
-            print("There is no way forward in that direction")
-
-        if next_room:
-            player.move_to(next_room)
-            print(f"You move {direction}")
-        else:
-            print("You can't go that way")
-
-    elif action == "look":
-        print(f"You are in {current_room.description}.")
-        look_around(player, rooms)
-    
-    elif action == "take":
-        item_name = " ".join(words[1:])
-        item = next((item for item in current_room.items if item.name.lower() == item_name.lower()), None)
-        if item:
-            player.add_to_inventory(item)
-            current_room.remove_item(item_name)
-            print(f"You take the {item.name}.")
-        else:
-            print("There is no {item_name} here.")
-
-    elif action == "inventory":
-        show_inventory(player, rooms)
-
+    if player.current_room == "Bedroom":
+        handle_bedroom(player, rooms, direction)
+    elif player.current_room == "Office":
+        handle_office(player, rooms, direction)
+    elif player.current_room == "Garden":
+        handle_garden(player, rooms, direction)
+    elif player.current_room == "Hallway":
+        handle_hallway(player, rooms, direction)
     else:
-        print("Unknown Command.")
-
+        print("Unknown room.")
+    
 def move_player(direction, player, rooms):
     current_room = rooms[player.current_room]
     next_room = current_room.get_exit(direction)
@@ -384,13 +279,15 @@ def use_item_from_inventory(item, player, rooms):
     current_room = rooms[player.current_room]
 
     if item.name.lower() == "mirror":
-        print("You use the mirror. It reflects the only thing that you've ever truly been interested in... Yourself")
+        print("You use the mirror. It reflects the only thing that you've ever truly been interested in... Yourself. It does not bring the scales into balance.")
+        return False
     elif item.name.lower() == "picture frame":
         print("You use the picture frame. Portrait of a happy family that you never prioritized")
         if player.current_room == "Bedroom":
             current_room.exits["east"] = "Office"
             print("The picture brings the scale into balance and you hear a click as the door to the east unlocks")
             print ("Type 'go east' to exit the room")
+        return True
     elif item.name.lower() == "phone":
         print("You answer the phone. Its your child asking when you'll be home")
     elif item.name.lower() == "origami key":
@@ -435,7 +332,7 @@ def main():
     rooms, player = setup_game()
 
     print("Welcome to Lucid")
-    print("To start the game, type 'begin'")
+    print("To start the game, type 'Begin'")
 
     start_command = input().strip().lower()
     while start_command != "begin":
@@ -453,9 +350,7 @@ def main():
         current_room_before = player.current_room
 
         command_handling(command, player, rooms)
-
-        if player.current_room != current_room_before:
-            print_current_room_description(player, rooms)
+        print_current_room_description(player, rooms)
 
 def print_current_room_description(player, rooms):
     current_room = rooms[player.current_room]
