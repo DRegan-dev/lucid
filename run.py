@@ -69,6 +69,13 @@ def handle_item_interaction(player, room):
                 player.add_to_inventory(item)
                 room.remove_item(item.name)
                 print(f"You take the {item.name}.")
+                if item.name.lower() == "origami key" and room.name == "Office":
+                    room.exits["west"] = "Garden"
+                    print("Type 'go west' to use the key to unlock the exit and move on.")
+                elif item.name.lower() == "picture frame" and room.name == "Bedroom":
+                    room.exits["east"] = "Office"
+                    print("The picture brings the scale into balance and you hear a claick as the door to the east unlocks.")
+
                 break
             elif item_action == "leave":
                 print(f"You leave the {item.name}.")
@@ -116,24 +123,15 @@ def handle_office(player, rooms, direction):
 
     if direction == "east":
         print("You move towards the desk, where the computer flickers and the phone rings loudly")
-        for item in rooms[player.current_room].items:
-            item_action = input(f"Type'take' to pick up {item.name}, or 'leave' to leave it")
-            if item_action == "take":
-                player.add_to_inventory(item)
-                rooms[player.current_room].remove_item(item.name)
-                print(f"You take the {item.name}.")
-                if item.name.lower() == "origami key":
-                    rooms[player.current_room].exits["west"] = "Garden"
-                    print("Type 'go west' to use the key to unlock the exit and move on")
-            elif item_action == "leave":
-                print(f"You leave the {item.name} on the desk.")
+        handle_item_interaction(player, rooms[player.current_room])
+
     elif direction == "west":
         next_room = rooms[player.current_room].get_exit(direction)
         if next_room:
             player.move_to(next_room)
             print("You move west.")
-    else:
-        print("Invalid direction. Try Again.")
+        else:
+            print("The door to the west is locked. You must find the key to unlock it")
 
     show_available_directions(player, rooms)
 
@@ -149,18 +147,13 @@ def handle_garden(player, rooms, direction):
                 print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday. You cannot reach them. Maybe its too late...")
     elif direction == "east":
         print("You approach a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife")
-        for item in rooms[player.current_room].items:
-            item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it")
-            if item_action == "take":
-                player.add_to_inventory(item)
-                rooms[player.current_room].remove_item(item.name)
-                print(f"You take the {item.name}.")
-                if item.name.lower() == "knife":
-                    rooms[player.current_room].exits["north"] = "Hallway"
-                    print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
-                    print("Type 'go north' to use the knife to cut through the picture and exit the party.")
-            elif item_action == "leave":
-                print(f"You leave the {item.name} on the picnic table.")
+        handle_item_interaction(player, current_room)
+
+        if player.has_item("knife") and "north" not in current_room.exits:
+            current_room.exits["north"] = "Hallway"
+            print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
+            print("Type 'go north' to use the knife to cut through the picture and exit the party.")
+            
     else:
         print("Invalid direction. Try again.")
     
