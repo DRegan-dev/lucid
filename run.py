@@ -83,17 +83,8 @@ def handle_item_interaction(player, room):
                 player.add_to_inventory(item)
                 room.remove_item(item.name)
                 print(f"You take the {item.name}.")
-                if item.name.lower() == "origami key" and room.name == "Office":
-                    room.exits["west"] = "Garden"
-                    print("Type 'go west' to use the key to unlock the exit and move on.")
-                elif item.name.lower() == "picture frame" and room.name == "Bedroom":
-                    room.exits["east"] = "Office"
-                    print("The picture brings the scale into balance and you hear a claick as the door to the east unlocks.")
-                elif item.name.lower() == "knife" and room.name == "Garden":
-                    room.exits["north"] == "Hallway"
-                    print("Type 'go north' to use the knife to cut throught 2d picture and exit the party.")
-
                 break
+    
             elif item_action == "leave":
                 print(f"You leave the {item.name}.")
                 break
@@ -118,7 +109,7 @@ def use_item_from_inventory(item, player, rooms):
         print("You use the origami key.")
         if player.current_room == "Office":
             current_room.exits["west"] = "Garden"
-            print("Type 'go west' tp exit the room.")
+            print("Type 'go west' to exit the room.")
         return True
     elif item.name.lower() == "knife":
         print("You carefully handle the knife and cut a door shaped hole in the picture")
@@ -132,9 +123,9 @@ def use_item_from_inventory(item, player, rooms):
         return False
 
 def handle_bedroom(player, rooms, direction):
-    if direction in ["north", "south", "east"]:
+    current_room = rooms[player.current_room]
+    if direction in current_room.exits:
         move_player(direction, player, rooms)
-
     elif direction == "north":
         print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems symbolic. Weighing decisions you have made and will make...")
         
@@ -165,11 +156,7 @@ def handle_bedroom(player, rooms, direction):
         handle_item_interaction(player, rooms[player.current_room])
     elif direction == 'east':
         if "east" in current_room.exits:
-            next_room = rooms[player.current_room].get_exit(direction)
-            if next_room:
-                player.move_to(next_room)
-                print("You move east")
-            
+            move_player(direction, player, rooms)           
         else:
             print("The door to the east is locked You need to find a way to unlock it.")
             
@@ -177,16 +164,19 @@ def handle_bedroom(player, rooms, direction):
     show_available_directions(player, rooms)
 
 def handle_office(player, rooms, direction):
+    current_room = rooms[player.current_room]
 
     if direction == "east":
         print("You move towards the desk, where the computer flickers and the phone rings loudly")
-        handle_item_interaction(player, rooms[player.current_room])
+        handle_item_interaction(player, current_room)
+
+        if player.has_item("Origami Key"):
+            current_room.exits["west"] = "Garden"
+            print("The Origami Key unlocks the door to the west.")
 
     elif direction == "west":
-        next_room = rooms[player.current_room].get_exit(direction)
-        if next_room:
-            player.move_to(next_room)
-            print("You move west.")
+        if "west" in current_room.exits:
+            move_player(direction, player, rooms)
         else:
             print("The door to the west is locked. You must find the key to unlock it")
 
@@ -196,14 +186,11 @@ def handle_garden(player, rooms, direction):
     current_room = rooms[player.current_room]
 
     if direction == "north":
-        if player.has_item("knife"):
-            next_room = current_room.get_exit(direction)
-            if next_room:
-                print("You use the knife to cut through the 2d picture and exit the party")
-                player.move_to(next_room)
-                print(f"You move {direction}")
-            else:
-                print("There is no exit in that direction.")
+        if player.has_item("Knife"):
+            print("You use the knife to cut through the 2d picture.")
+            
+            move_player(direction, player, rooms)
+            
         else:
             print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday. You cannot reach them. Maybe its too late...")
     
@@ -212,14 +199,10 @@ def handle_garden(player, rooms, direction):
         print("You approach a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife")
         handle_item_interaction(player, current_room)
         
-        if player.has_item("knife"):
-            print("Knife is in inventory.")
-            if "north" not in current_room.exits:
-                current_room.exits["north"] = "Hallway"
-                print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
-                print("Type 'go north' to use the knife to cut through the picture and exit the party.")
-        else:
-            print("You need to pick up the knife to find the exit.")
+        if player.has_item("Knife"):
+            print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
+            print("Type 'go north' to use the knife to cut through the picture and exit the party.")
+            current_room.exits["north"] = "Hallway"
     else:
         print("Invalid direction. Try again.")
     
@@ -265,24 +248,30 @@ def command_handling(command, player, rooms):
     action = words[0].lower()
     direction = words[1].lower() if len(words) > 1 else None
 
-    if action in ["go", "move"]:
-        if not direction:
-            print("You need to specify a direction")
-            return
+    if action in ["go", "move"] and direction:
+        current_room = rooms[player.current_room]
 
-    current_room = rooms[player.current_room]
-
-    if player.current_room == "Bedroom":
-        handle_bedroom(player, rooms, direction)
-    elif player.current_room == "Office":
-        handle_office(player, rooms, direction)
-    elif player.current_room == "Garden":
-        handle_garden(player, rooms, direction)
-    elif player.current_room == "Hallway":
-        handle_hallway(player, rooms, direction)
-    else:
-        print("Unknown room.")
     
+
+        if player.current_room == "Bedroom":
+            handle_bedroom(player, rooms, direction)
+        elif player.current_room == "Office":
+            handle_office(player, rooms, direction)
+        elif player.current_room == "Garden":
+            handle_garden(player, rooms, direction)
+        elif player.current_room == "Hallway":
+            handle_hallway(player, rooms, direction)
+        else:
+            print("Unknown room.")
+    elif action == "look":
+        look_around(player, rooms)
+    elif action == "take" and direction:
+        take_item(direction, player, rooms)
+    elif action == "inventory":
+        player.show_inventory()
+    else:
+        print("Invalid Command")  
+
 def move_player(direction, player, rooms):
     current_room = rooms[player.current_room]
     next_room = current_room.get_exit(direction)
@@ -318,9 +307,9 @@ def show_inventory(player, rooms):
         for i, item in enumerate(player.inventory, 1):
             print(f"{i}. {item.name}: {item.description}")
 
-        use_item = input("Would you like to you an item? (yes/no) \n").strip().lower()
+        use_item = input("Would you like to you an item? (yes/no)\n").strip().lower()
         if use_item == "yes":
-            item_choice = input("Enter the number of the item you want to use: \n").strip()
+            item_choice = input("Enter the number of the item you want to use:\n").strip()
             if item_choice.isdigit():
                 item_index = int(item_choice) - 1
                 if 0 <= item_index < len(player.inventory):
