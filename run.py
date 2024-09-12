@@ -50,6 +50,16 @@ class Player:
         else:
             print("You are not carrying anything")
 
+def move_player(direction, player, rooms):
+    current_room = rooms[player.current_room]
+    next_room = current_room.get_exit(direction)
+
+    if next_room:
+        player.move_to(next_room)
+        print(f"You move {direction} to the {next_room}.")
+    else:
+        print("You can't go that way")
+
 def show_available_directions(player, rooms):
     current_room = rooms[player.current_room]
     exits = current_room.exits
@@ -62,6 +72,10 @@ def show_available_directions(player, rooms):
         print("\nThere are no obvious exits from this room.")
 
 def handle_item_interaction(player, room):
+    if not room.items:
+        print("There are no items here to interact with.")
+        return 
+
     for item in room.items:
         while True:
             item_action = input(f"Type 'take' to pick up the {item.name}, or 'leave' to leave it: ").strip().lower()
@@ -75,15 +89,53 @@ def handle_item_interaction(player, room):
                 elif item.name.lower() == "picture frame" and room.name == "Bedroom":
                     room.exits["east"] = "Office"
                     print("The picture brings the scale into balance and you hear a claick as the door to the east unlocks.")
+                elif item.name.lower() == "knife" and room.name == "Garden":
+                    room.exits["north"] == "Hallway"
+                    print("Type 'go north' to use the knife to cut throught 2d picture and exit the party.")
 
                 break
             elif item_action == "leave":
                 print(f"You leave the {item.name}.")
+                break
 
-def handle_bedroom(player, rooms, direction):
+def use_item_from_inventory(item, player, rooms):
     current_room = rooms[player.current_room]
 
-    if direction == "north":
+    if item.name.lower() == "mirror":
+        print("You use the mirror. It reflects the only thing that you've ever truly been interested in... Yourself. It does not bring the scales into balance.")
+        return False
+    elif item.name.lower() == "picture frame":
+        print("You use the picture frame. Portrait of a happy family that you never prioritized")
+        if player.current_room == "Bedroom":
+            current_room.exits["east"] = "Office"
+            print("The picture brings the scale into balance and you hear a click as the door to the east unlocks")
+            print ("Type 'go east' to exit the room")
+        return True
+    elif item.name.lower() == "phone":
+        print("You answer the phone. Its your child asking when you'll be home")
+        return False
+    elif item.name.lower() == "origami key":
+        print("You use the origami key.")
+        if player.current_room == "Office":
+            current_room.exits["west"] = "Garden"
+            print("Type 'go west' tp exit the room.")
+        return True
+    elif item.name.lower() == "knife":
+        print("You carefully handle the knife and cut a door shaped hole in the picture")
+        if player.current_room == "Garden":
+            current_room.exits["north"] = "Hallway"
+            print("You use the knife to cut through the 2d picture, revealing an exit.")
+            print("Type 'go north' to exit the garden.")
+        return True
+    else:
+        print(f"The {item.name} doesn't seem to have any immediate use")
+        return False
+
+def handle_bedroom(player, rooms, direction):
+    if direction in ["north", "south", "east"]:
+        move_player(direction, player, rooms)
+
+    elif direction == "north":
         print("You approach the large balance scale. There are stacks of cash weighing down one side. It seems symbolic. Weighing decisions you have made and will make...")
         
         while True:
@@ -92,7 +144,7 @@ def handle_bedroom(player, rooms, direction):
                 break
         
             player.show_inventory()
-            item_choice = input("Enter the number of the item you want to use: ").strip()
+            item_choice = input("Enter the number of the item you want to use: /n").strip()
 
             if item_choice.isdigit():
                 item_index = int(item_choice) - 1
@@ -149,19 +201,25 @@ def handle_garden(player, rooms, direction):
             if next_room:
                 print("You use the knife to cut through the 2d picture and exit the party")
                 player.move_to(next_room)
+                print(f"You move {direction}")
+            else:
+                print("There is no exit in that direction.")
         else:
             print("You move towards your child, who sits behind a group of parents and children singing Happy Birthday. You cannot reach them. Maybe its too late...")
+    
 
     elif direction == "east":
         print("You approach a vacant picnic table, empty plates and cups tell of a party that has just ended. You see a knife")
         handle_item_interaction(player, current_room)
         
-        if player.has_item("knife") and "north" not in current_room.exits:
-            current_room.exits["north"] = "Hallway"
-            print("Its a jungle out there")
-            print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
-            print("Type 'go north' to use the knife to cut through the picture and exit the party.")
-            
+        if player.has_item("knife"):
+            print("Knife is in inventory.")
+            if "north" not in current_room.exits:
+                current_room.exits["north"] = "Hallway"
+                print("As you pick up the knife, the singing stops. You turn to find out why and see the party scene you had just been immersed in has turned into a 2d picture on paper.")
+                print("Type 'go north' to use the knife to cut through the picture and exit the party.")
+        else:
+            print("You need to pick up the knife to find the exit.")
     else:
         print("Invalid direction. Try again.")
     
@@ -260,54 +318,27 @@ def show_inventory(player, rooms):
         for i, item in enumerate(player.inventory, 1):
             print(f"{i}. {item.name}: {item.description}")
 
-            use_item = input("Would you like to you an item? (yes/no) ").strip().lower()
-            if use_item == "yes":
-                item_choice = input("Enter the number of the item you want to use: ").strip()
-                if item_choice.isdigit():
-                    item_index = int(item_choice) - 1
-                    if 0 <= item_index < len(player.inventory):
-                        use_item_from_inventory(player.inventory[item_index], player, rooms)
+        use_item = input("Would you like to you an item? (yes/no) \n").strip().lower()
+        if use_item == "yes":
+            item_choice = input("Enter the number of the item you want to use: \n").strip()
+            if item_choice.isdigit():
+                item_index = int(item_choice) - 1
+                if 0 <= item_index < len(player.inventory):
+                    item_use = use_item_from_inventory(player.inventory[item_index], player, rooms)
+                    if item_used:
+                        print("The item had an effect")
                     else:
-                        print("Invalid choice.")
+                        print("the item didnt have any significant effect.")
                 else:
-                    print("Invalid input")
+                    print("Invalid choice")
             else:
-                print("You choose not to use any item.")
+                print("Invalid Input")
+        else:
+            print("You choose not to use any item")
     else:
-        print("You are not carrying anything")
+        ("You are not carrying anything")
 
-def use_item_from_inventory(item, player, rooms):
-    current_room = rooms[player.current_room]
 
-    if item.name.lower() == "mirror":
-        print("You use the mirror. It reflects the only thing that you've ever truly been interested in... Yourself. It does not bring the scales into balance.")
-        return False
-    elif item.name.lower() == "picture frame":
-        print("You use the picture frame. Portrait of a happy family that you never prioritized")
-        if player.current_room == "Bedroom":
-            current_room.exits["east"] = "Office"
-            print("The picture brings the scale into balance and you hear a click as the door to the east unlocks")
-            print ("Type 'go east' to exit the room")
-        return True
-    elif item.name.lower() == "phone":
-        print("You answer the phone. Its your child asking when you'll be home")
-        return False
-    elif item.name.lower() == "origami key":
-        print("You use the origami key.")
-        if player.current_room == "Office":
-            current_room.exits["west"] = "Garden"
-            print("Type 'go west' tp exit the room.")
-        return True
-    elif item.name.lower() == "knife":
-        print("You carefully handle the knife and cut a door shaped hole in the picture")
-        if player.current_room == "Garden":
-            current_room.exits["north"] = "Hallway"
-            print("You use the knife to cut through the 2d picture, revealing an exit.")
-            print("Type 'go north' to exit the garden.")
-        return True
-    else:
-        print(f"The {item.name} doesn't seem to have any immediate use")
-        return False
 
 def setup_game():
     # Defines Rooms
@@ -354,7 +385,7 @@ def main():
     print_current_room_description(player, rooms)
 
     while True:
-        command = input("> ").strip().lower()
+        command = input("> /n").strip().lower()
         if command in ["quit", "exit"]:
             print("Thanks for playing")
             break
