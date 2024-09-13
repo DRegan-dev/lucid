@@ -222,16 +222,18 @@ def handle_hallway(player, rooms, direction):
                 print(f"You take the {item.name}.")
                 print(f"{item.description}")
                 print("You must now make the ultimate decision")
-    elif direction in ["east", "west"]:
-        next_room = rooms[player.current_room].get_exit(direction)
-        if next_room:
-            player.move_to(next_room)
+
+    elif direction == "west":
+        print("You move west")
+        print("Congratulations! You've reached the end of your Journey.")
+        print("You chose wisely and prioritized your family.")
+        print("Remember, the time with your loved ones is precious. Go forward and make the most of your time with your family and child.")
+        print("Thank you for playing!")
+        exit(0)
+    elif direction == "east":
             print(f"You move {direction}")
-            if direction == "west":
-                print(end_of_game_sequence())
-            elif direction == "east":
-                restart_game()
-                return
+            restart_game()
+            return
     else:
         print("Invalid direction. Try again.")
 
@@ -327,7 +329,9 @@ def show_inventory(player, rooms):
     else:
         ("You are not carrying anything")
 
-
+def restart_game():
+    print("\nRestarting the game...\n")
+    main()
 
 def setup_game():
     # Defines Rooms
@@ -364,17 +368,17 @@ def main():
     rooms, player = setup_game()
 
     print("Welcome to Lucid")
-    print("To start the game, type 'Begin'")
+    print("To start the game, type 'Begin' and press enter")
 
     start_command = input().strip().lower()
     while start_command != "begin":
-        print("To start the game, type 'begin'")
+        print("To start the game, type 'begin' and press enter")
         start_command = input().strip().lower()
 
     print_current_room_description(player, rooms)
 
     while True:
-        command = input("> /n").strip().lower()
+        command = input("> \n").strip().lower()
         if command in ["quit", "exit"]:
             print("Thanks for playing")
             break
