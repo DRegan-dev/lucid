@@ -368,7 +368,7 @@ def main():
     rooms, player = setup_game()
 
     print("Welcome to Lucid")
-    print("To start the game, type 'Begin' and press enter")
+    print("To start the game, type 'Begin' and Press Enter.")
 
     start_command = input().strip().lower()
     while start_command != "begin":
