@@ -215,13 +215,14 @@ def handle_hallway(player, rooms, direction):
     if direction == "down":
         print("You look down at your feet and see a drawing you child has done.")
         for item in rooms[player.current_room].items:
-            item_action = input(f"Type 'take' to pick up the {item.name}").strip().lower()
+            item_action = input(f"Type 'take' to pick up the {item.name}: ").strip().lower()
             if item_action == "take":
                 player.add_to_inventory(item)
                 rooms[player.current_room].remove_item(item.name)
                 print(f"You take the {item.name}.")
                 print(f"{item.description}")
                 print("You must now make the ultimate decision")
+                print("'go east' is a choice for yourself and 'go west' is a choice for your family")
 
     elif direction == "west":
         print("You move west")
@@ -393,20 +394,20 @@ def print_current_room_description(player, rooms):
     print(f"\n{current_room.description}")
 
     if player.current_room == "Bedroom":
-        print("To the north, you see a large balance scale")
-        print("To the south, there is a desk with a mirror and a picture frame")
-        print("To the east, the door leads out of the room")
+        print("To the north, you see a large balance scale. Type 'go north' to proceed.")
+        print("To the south, there is a desk with a mirror and a picture frame. Type 'go south' and press enter to proceed.")
+        print("To the east, the door leads out of the room. Type 'go east' and press enter to proceed")
     elif player.current_room == "Office":
         print("The office is chaos in suspended animation. Papers are thrown everywhere trapped in mid flight. Ouside the window a swirling hurricane carries faint voices on its forceful wind.")
-        print("To the east, there is a desk with a computer and a ringing phone")
-        print("To the west, a door will take you where you need to go")
+        print("To the east, there is a desk with a computer and a ringing phone. Type 'go east' and press enter to proceed")
+        print("To the west, a door will take you where you need to go. Type 'go west' and press enter to proceed")
     elif player.current_room == "Garden":
         print("The heat from the sun finds your skin, in the distance you can hear children singing happy birthday to your kid")
-        print("To the north, your kid sits behind a group of parents and their children singing Happy Birthday.")
-        print("To the east, a vacant picnic table")
+        print("To the north, your kid sits behind a group of parents and their children singing Happy Birthday. Type 'go north' and press enter to proceed")
+        print("To the east, a vacant picnic table. Type 'go east' and press enter to proceed")
     elif player.current_room == "Hallway":
         print("The hallway seems to stretch infinitely, the doors on either end promising both hope and despair")
-        print("You look down at your feet as you enter the hallway. A picture that your child has drawn.")
+        print("You look down at your feet as you enter the hallway. A picture that your child has drawn. Type 'go down' and press enter to pick up picture.")
 
 
 if __name__ == "__main__":
