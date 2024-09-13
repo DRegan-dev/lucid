@@ -135,7 +135,7 @@ def handle_bedroom(player, rooms, direction):
                 break
         
             player.show_inventory()
-            item_choice = input("Enter the number of the item you want to use: /n").strip()
+            item_choice = input("Enter the number of the item you want to use: \n").strip()
 
             if item_choice.isdigit():
                 item_index = int(item_choice) - 1
